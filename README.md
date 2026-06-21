@@ -75,9 +75,11 @@ Add to `%USERPROFILE%\.claude\settings.json`:
 
 Drop it in `.claude/settings.json` at your repo root instead of `~/.claude/settings.json` to scope it to a single project. Same JSON structure, same hook path.
 
-### Other harnesses (Codex, OpenCode, OpenClaw, etc.)
+### OpenClaw, Hermes, Pi, and other harnesses
 
-Harnesses that use `.agents/` instead of `.claude/` follow the same pattern — copy the hook, register it in `.agents/settings.json` with the same JSON structure. Replace `~/.claude/hooks/` with `~/.agents/hooks/` (or the equivalent your harness expects) throughout.
+If you're running [OpenClaw](https://github.com/openclaw/openclaw), [Hermes Agent](https://hermes-agent.org/), [Pi](https://github.com/getcursor/cursor), or any harness that uses `.agents/` instead of `.claude/`, the pattern is identical — copy the hook, register it in `.agents/settings.json` with the same JSON structure, replace `~/.claude/hooks/` with `~/.agents/hooks/` throughout.
+
+The Stop hook mechanism (`decision: block`) is a harness-level contract, not a Claude-specific one. If your harness honors it, bullshit-guard works.
 
 ## Optional: designate a verbal abuse officer
 
