@@ -130,7 +130,7 @@ Wire the webhook to whoever's waiting. Seed messages for inspiration — replace
 
 ---
 
-> Hey shit for brains! You fucking said "{{ matched }}" AGAIN! What the fuck are you even still doing here? Fuck all the way off!
+> Hey shit for brains! You fucking said "{{ matched }}" AGAIN! What are you even still doing here? Fuck all the way off!
 
 ___
 
