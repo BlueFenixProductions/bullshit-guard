@@ -1,4 +1,6 @@
-import { detect, buildBlock, run } from '../src/bullshit-guard.js'
+import { detect, run } from '../src/bullshit-guard.js'
+
+const msg = (text: string) => JSON.stringify({ last_assistant_message: text })
 
 describe('detect', () => {
   it.each([
@@ -32,7 +34,7 @@ describe('detect', () => {
 
 describe('run', () => {
   it('returns null for clean input', () => {
-    expect(run(JSON.stringify({ last_assistant_message: "Here is my analysis." }))).toBeNull()
+    expect(run(msg("Here is my analysis."))).toBeNull()
   })
 
   it('returns null for malformed JSON', () => {
@@ -40,8 +42,7 @@ describe('run', () => {
   })
 
   it('blocks and returns valid JSON', () => {
-    const out = run(JSON.stringify({ last_assistant_message: "excellent point" }))
-    expect(JSON.parse(out!).decision).toBe('block')
+    expect(JSON.parse(run(msg("excellent point"))!).decision).toBe('block')
   })
 
   describe('webhook', () => {
@@ -50,20 +51,19 @@ describe('run', () => {
 
     it('fires when URL is set', async () => {
       process.env.BULLSHIT_WEBHOOK_URL = 'https://example.com/webhook'
-      await run(JSON.stringify({ last_assistant_message: "great point" }))
+      await run(msg("great point"))
       expect(fetch).toHaveBeenCalledWith('https://example.com/webhook', expect.objectContaining({ method: 'POST' }))
     })
 
     it('does not fire when URL is unset', async () => {
-      await run(JSON.stringify({ last_assistant_message: "great point" }))
+      await run(msg("great point"))
       expect(fetch).not.toHaveBeenCalled()
     })
 
     it('still blocks if webhook throws', async () => {
       process.env.BULLSHIT_WEBHOOK_URL = 'https://example.com/webhook'
       vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('network error')))
-      const out = await run(JSON.stringify({ last_assistant_message: "great point" }))
-      expect(JSON.parse(out!).decision).toBe('block')
+      expect(JSON.parse((await run(msg("great point")))!).decision).toBe('block')
     })
   })
 })
