@@ -135,7 +135,18 @@ X's API requires OAuth 2.0 and a paid developer account. Same proxy approach as 
 
 ### Signal
 
-Requires [`signal-cli`](https://github.com/AsamK/signal-cli) running locally. Replace the curl call with:
+If you're running [OpenClaw](https://github.com/openclaw/openclaw) with its Signal integration, `signal-cli` is already running as a daemon with HTTP JSON-RPC. POST directly to it:
+
+```bash
+export BULLSHIT_WEBHOOK_URL=http://localhost:8080/v1/send
+```
+
+Then edit the hook to send the Signal-flavored payload:
+```bash
+BODY="{\"message\": \"Bullshit detected: agent said \\\"${MATCHED}\\\" — response blocked.\", \"number\": \"+15551234567\", \"recipients\": [\"+15559876543\"]}"
+```
+
+If you're running `signal-cli` standalone (no OpenClaw), use the CLI directly instead of a webhook:
 ```bash
 signal-cli -u +15551234567 send -m "Bullshit detected: \"${MATCHED}\" — response blocked." +15559876543
 ```
