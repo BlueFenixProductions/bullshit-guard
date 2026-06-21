@@ -14,14 +14,22 @@ If that shot opens with "great point" — gone too. There is no bobblehead budge
 
 Add your own. The list is short because these are the ones that actually sting.
 
+## Build
+
+```bash
+bun install
+bun run build
+```
+
+This compiles `src/bullshit-guard.ts` to `hooks/bullshit-guard.js`. The `.js` is what you copy and register.
+
 ## Install
 
 ### macOS / Linux
 
 ```bash
 mkdir -p ~/.claude/hooks
-cp hooks/bullshit-guard.sh ~/.claude/hooks/bullshit-guard.sh
-chmod +x ~/.claude/hooks/bullshit-guard.sh
+cp hooks/bullshit-guard.js ~/.claude/hooks/bullshit-guard.js
 ```
 
 Add to `~/.claude/settings.json`:
@@ -34,7 +42,7 @@ Add to `~/.claude/settings.json`:
         "hooks": [
           {
             "type": "command",
-            "command": "bash \"$HOME/.claude/hooks/bullshit-guard.sh\"",
+            "command": "node \"$HOME/.claude/hooks/bullshit-guard.js\"",
             "timeout": 15
           }
         ]
@@ -75,11 +83,51 @@ Add to `%USERPROFILE%\.claude\settings.json`:
 
 Drop it in `.claude/settings.json` at your repo root instead of `~/.claude/settings.json` to scope it to a single project. Same JSON structure, same hook path.
 
-### OpenClaw, Hermes, Pi, and other harnesses
+### Codex CLI
 
-If you're running [OpenClaw](https://github.com/openclaw/openclaw), [Hermes Agent](https://hermes-agent.org/), [Pi](https://github.com/getcursor/cursor), or any harness that uses `.agents/` instead of `.claude/`, the pattern is identical — copy the hook, register it in `.agents/settings.json` with the same JSON structure, replace `~/.claude/hooks/` with `~/.agents/hooks/` throughout.
+Codex CLI uses `~/.codex/hooks.json` (or `.codex/hooks.json` at project level). The JSON structure is identical to Claude Code's. Hooks must be enabled first in `~/.codex/config.toml`:
 
-The Stop hook mechanism (`decision: block`) is a harness-level contract, not a Claude-specific one. If your harness honors it, bullshit-guard works.
+```toml
+[features]
+codex_hooks = true
+```
+
+Then register the hook:
+
+```bash
+mkdir -p ~/.codex/hooks
+cp hooks/bullshit-guard.js ~/.codex/hooks/bullshit-guard.js
+```
+
+Add to `~/.codex/hooks.json`:
+
+```json
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$HOME/.codex/hooks/bullshit-guard.js\"",
+            "timeout": 15
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+The `decision: "block"` output contract is the same — Codex treats the reason as a continuation prompt injected as the next user message.
+
+### Crush (charmbracelet)
+
+Crush uses `~/.config/crush/crush.json` (or `.crush.json` at project level) and a `PreToolUse` hook — not a `Stop` hook. Its output contract is different: exit 2 to block, exit 0 with `{"decision":"allow"|"deny"}` to control tool calls. bullshit-guard's `Stop`-hook contract does not map to Crush's hook system. Source: [charmbracelet/crush docs/hooks](https://github.com/charmbracelet/crush/blob/main/docs/hooks/README.md).
+
+### Other harnesses
+
+The `decision: "block"` stdout contract is Claude Code-native and adopted by Codex CLI. Other harnesses (OpenClaw, Hermes Agent) have no publicly documented hook system at time of writing. If your harness honors the same stdout contract, bullshit-guard works as-is. If it doesn't, the hook exits 0 and does nothing harmful.
 
 ## Optional: designate a verbal abuse officer
 
@@ -89,73 +137,37 @@ Set `BULLSHIT_WEBHOOK_URL` and every blocked phrase gets POSTed there before the
 export BULLSHIT_WEBHOOK_URL=https://your-endpoint/here
 ```
 
+The hook POSTs `{"text": "Bullshit detected: \"<matched>\" — response blocked and retried."}` as JSON. To customise the payload for your endpoint, edit `src/bullshit-guard.ts` and rebuild.
+
+For message inspiration, see [`seeds/verbal-abuse.md`](seeds/verbal-abuse.md).
+
 ### Slack
+
+Slack incoming webhooks accept `{"text": "..."}` natively. No changes needed.
 
 ```bash
 export BULLSHIT_WEBHOOK_URL=https://hooks.slack.com/services/YOUR/WEBHOOK/URL
 ```
 
-Payload (`{"text": "..."}`) works natively with Slack incoming webhooks. No extra config.
-
 ### Discord
 
-```bash
-export BULLSHIT_WEBHOOK_URL=https://discord.com/api/webhooks/ID/TOKEN
-```
-
-Discord expects `content` not `text`. Edit the hook script and swap:
-```bash
-BODY="{\"content\": \"Bullshit detected: agent said \\\"${MATCHED}\\\" — response blocked and retried.\"}"
-```
-
-Or append `/slack` to your Discord webhook URL and leave the script as-is.
-
-### Mastodon
+Discord webhook URLs accept Slack-compatible payloads if you append `/slack`:
 
 ```bash
-export BULLSHIT_WEBHOOK_URL=https://your.instance/api/v1/statuses
+export BULLSHIT_WEBHOOK_URL=https://discord.com/api/webhooks/ID/TOKEN/slack
 ```
 
-Mastodon needs a Bearer token. Edit the curl call in the hook to add the header:
-```bash
-curl -sf -X POST \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
-  -d "{\"status\": \"Bullshit detected: agent said \\\"${MATCHED}\\\" — response blocked.\"}" \
-  "$BULLSHIT_WEBHOOK_URL" 2>/dev/null || true
-```
+Or change the payload key from `text` to `content` in `src/bullshit-guard.ts` and use the plain webhook URL.
 
-### Bluesky
+### Mastodon, Bluesky, X, Signal
 
-Bluesky requires an app password and a session token exchange before posting. Wire up a small proxy (a single-endpoint Cloudflare Worker or similar) that holds your credentials and accepts the same simple POST the hook fires. The hook stays dumb; the proxy handles the AT Protocol dance.
-
-### X (Twitter)
-
-X's API requires OAuth 2.0 and a paid developer account. Same proxy approach as Bluesky — keep the hook simple, put the auth complexity in a thin intermediary.
-
-### Signal
-
-If you're running [OpenClaw](https://github.com/openclaw/openclaw) with its Signal integration, `signal-cli` is already running as a daemon with HTTP JSON-RPC. POST directly to it:
-
-```bash
-export BULLSHIT_WEBHOOK_URL=http://localhost:8080/v1/send
-```
-
-Then edit the hook to send the Signal-flavored payload:
-```bash
-BODY="{\"message\": \"Bullshit detected: agent said \\\"${MATCHED}\\\" — response blocked.\", \"number\": \"+15551234567\", \"recipients\": [\"+15559876543\"]}"
-```
-
-If you're running `signal-cli` standalone (no OpenClaw), use the CLI directly instead of a webhook:
-```bash
-signal-cli -u +15551234567 send -m "Bullshit detected: \"${MATCHED}\" — response blocked." +15559876543
-```
+These require auth headers, token exchanges, or OAuth that can't be expressed as a bare webhook URL. Run a thin proxy (a single Cloudflare Worker endpoint works) that accepts the hook's simple POST and handles the platform-specific auth. The hook stays dumb; the proxy handles the dance.
 
 The block fires whether or not the webhook succeeds. Your abuse officer is optional. The block is not.
 
 ## Extend the pattern list
 
-Edit `re.compile(...)` in `bullshit-guard.sh` or `[regex]::Match` in the `.ps1`. Python / .NET regex, `IGNORECASE | MULTILINE`.
+Edit the patterns array in `src/bullshit-guard.ts`, then `bun run build`. On Windows, edit the regex in `hooks/bullshit-guard.ps1` directly.
 
 The usual suspects:
 ```
@@ -164,7 +176,9 @@ absolutely|certainly|of course|indeed|great question|good question|totally
 
 ## How it works
 
-Claude Code Stop hooks can return `{"decision": "block", "reason": "..."}` to throw away a response and inject a correction. This hook uses that to tell Claude what it said, why that's not acceptable, and to try again without the ass-kissing. The original response is discarded.
+Claude Code Stop hooks receive JSON on stdin with the session context including `last_assistant_message`. The hook inspects that field and, if it matches a bullshit pattern, writes `{"decision": "block", "reason": "..."}` to stdout and exits 0. Claude discards the response, injects the reason as context, and tries again. The original response is gone.
+
+The `reason` tells Claude exactly what it said, why that's not acceptable, and to try again without the ass-kissing.
 
 ## License
 
@@ -172,6 +186,6 @@ Claude Code Stop hooks can return `{"decision": "block", "reason": "..."}` to th
 
 ## Requirements
 
-- macOS/Linux: `python3`, `curl`
+- macOS/Linux: `node` (18+), `curl` (for webhooks)
 - Windows: PowerShell 5.1+
 - No other dependencies

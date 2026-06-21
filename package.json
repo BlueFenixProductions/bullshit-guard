@@ -1,0 +1,16 @@
+{
+  "name": "bullshit-guard",
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit",
+    "build": "bun build src/bullshit-guard.ts --outfile hooks/bullshit-guard.js --target node"
+  },
+  "devDependencies": {
+    "vitest": "^3.0.0",
+    "typescript": "^5.0.0",
+    "@types/node": "^22.0.0"
+  }
+}
