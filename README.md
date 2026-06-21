@@ -110,7 +110,7 @@ Set `BULLSHIT_WEBHOOK_URL` and every blocked phrase gets POSTed there before the
 export BULLSHIT_WEBHOOK_URL=https://your-endpoint/here
 ```
 
-The hook POSTs `{"text": "Bullshit detected: \"<matched>\" — response blocked and retried."}` as JSON. To customise the payload for your endpoint, edit `src/bullshit-guard.ts` and rebuild.
+The hook POSTs `{"text": "Bullshit detected: \"<matched>\""}` as JSON. To customise the payload for your endpoint, edit `src/bullshit-guard.ts` and rebuild.
 
 For message inspiration, see [`seeds/verbal-abuse.md`](seeds/verbal-abuse.md).
 

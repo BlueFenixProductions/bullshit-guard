@@ -1,8 +1,14 @@
-// Patterns that indicate sycophantic affirmation
-const PATTERN = /you're right|you are right|great point|good point|excellent point|^Right[.!,]/im
-
 export function detect(text: string): string | null {
-  return text.match(PATTERN)?.[0] ?? null
+  const lower = text.toLowerCase()
+
+  if (lower.includes('you are right')) return 'you are right'
+
+  for (const phrase of ['great point', 'good point', 'excellent point']) {
+    const i = lower.indexOf(phrase)
+    if (i !== -1 && (lower.charCodeAt(i + phrase.length) || 32) < 97) return phrase
+  }
+
+  return text.match(/^Right[.!,]/im)?.[0] ?? null
 }
 
 export function buildBlock(matched: string) {
