@@ -1,8 +1,10 @@
 # bullshit-guard
 
-Claude will tell you you're right when you're wrong. It will call your half-baked idea a great point. It will agree with your bad architecture and help you implement it. This stops that.
+Claude will tell you you're right when you're wrong. It will call your half-baked idea a great point. It will agree with your bad architecture and help you ship it. This is a Claude Code Stop hook that kills that response before it reaches you and makes Claude try again.
 
-A Claude Code Stop hook that **blocks bullshit responses before they reach you** and forces an immediate redo. No strikes. No warnings. The nodding answer gets killed and Claude tries again.
+No strikes. No warnings. The nodding answer is gone. Claude gets one more shot to say something useful.
+
+If that shot opens with "great point" — gone too. There is no bobblehead budget.
 
 ## What it catches
 
@@ -10,7 +12,7 @@ A Claude Code Stop hook that **blocks bullshit responses before they reach you**
 - `great point` / `good point` / `excellent point`
 - `right.` / `right!` at the start of a line
 
-If the redo opens with another blocked phrase, that gets killed too. There is no bobblehead budget.
+Add your own. The list is short because these are the ones that actually sting.
 
 ## Install
 
@@ -69,9 +71,9 @@ Add to `%USERPROFILE%\.claude\settings.json`:
 }
 ```
 
-## Optional: route offenses somewhere useful
+## Optional: designate a verbal abuse officer
 
-Set `BULLSHIT_WEBHOOK_URL` and every blocked phrase gets POSTed there before the redo fires. Wire it to Slack, Discord, a custom endpoint, or a very angry bot you've designated for exactly this purpose.
+Set `BULLSHIT_WEBHOOK_URL` and every blocked phrase gets POSTed there before the redo fires. Wire it to Slack, Discord, or whatever poor bastard you've assigned to handle conduct violations.
 
 ```bash
 export BULLSHIT_WEBHOOK_URL=https://hooks.slack.com/services/YOUR/WEBHOOK/URL
@@ -82,22 +84,22 @@ Payload:
 { "text": "Bullshit detected: agent said \"great point\" — response blocked and retried." }
 ```
 
-Slack webhooks accept this directly. Discord: append `/slack` to your webhook URL or swap `text` for `content`.
+Slack accepts this directly. Discord: append `/slack` to your webhook URL or swap `text` for `content`.
 
-The block fires whether or not the webhook call succeeds.
+The block fires whether or not the webhook succeeds. Your abuse officer is optional. The block is not.
 
-## Extending the pattern list
+## Extend the pattern list
 
-Edit the `re.compile(...)` line in `bullshit-guard.sh` (or `[regex]::Match` in the `.ps1`). Standard Python / .NET regex, `IGNORECASE | MULTILINE`.
+Edit `re.compile(...)` in `bullshit-guard.sh` or `[regex]::Match` in the `.ps1`. Python / .NET regex, `IGNORECASE | MULTILINE`.
 
-Suggestions:
+The usual suspects:
 ```
 absolutely|certainly|of course|indeed|great question|good question|totally
 ```
 
 ## How it works
 
-Claude Code Stop hooks can return `{"decision": "block", "reason": "..."}` to discard a response and inject a correction back to the model. This hook uses that to tell Claude exactly what it said, why that's not acceptable, and to try again without the affirmation. The original response is gone.
+Claude Code Stop hooks can return `{"decision": "block", "reason": "..."}` to throw away a response and inject a correction. This hook uses that to tell Claude what it said, why that's not acceptable, and to try again without the ass-kissing. The original response is discarded.
 
 ## License
 
@@ -105,6 +107,6 @@ Claude Code Stop hooks can return `{"decision": "block", "reason": "..."}` to di
 
 ## Requirements
 
-- macOS/Linux: `python3`, `curl` (pre-installed everywhere that matters)
+- macOS/Linux: `python3`, `curl`
 - Windows: PowerShell 5.1+
 - No other dependencies
