@@ -1,4 +1,3 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { detect, buildBlock, run } from '../src/bullshit-guard.js'
 
 // --- detect() ---
@@ -119,7 +118,7 @@ describe('run', () => {
 
     it('output is valid JSON', async () => {
       const input = JSON.stringify({ last_assistant_message: "great point about that" })
-      expect(() => JSON.parse((run(input) as any)!)).not.toThrow()
+      expect(() => JSON.parse(run(input)!)).not.toThrow()
     })
   })
 

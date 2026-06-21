@@ -14,8 +14,6 @@ export function buildBlock(matched: string) {
 }
 
 export function run(stdinJson: string): string | null {
-  if (!stdinJson) return null
-
   let parsed: unknown
   try {
     parsed = JSON.parse(stdinJson)
@@ -31,8 +29,6 @@ export function run(stdinJson: string): string | null {
   const matched = detect(message)
   if (!matched) return null
 
-  const result = JSON.stringify(buildBlock(matched))
-
   if (process.env.BULLSHIT_WEBHOOK_URL) {
     // Fire and forget — failure must not suppress the block
     fetch(process.env.BULLSHIT_WEBHOOK_URL, {
@@ -42,5 +38,5 @@ export function run(stdinJson: string): string | null {
     }).catch(() => undefined)
   }
 
-  return result
+  return JSON.stringify(buildBlock(matched))
 }
