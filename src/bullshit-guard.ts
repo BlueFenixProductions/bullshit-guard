@@ -1,14 +1,41 @@
+import { readFileSync } from 'fs'
+import { homedir } from 'os'
+import { join } from 'path'
+
+const DEFAULT_PHRASES = [
+  'you are right',
+  'great point',
+  'good point',
+  'excellent point',
+]
+
+function loadPhrases(): string[] {
+  const candidates = [
+    join(process.cwd(), 'bullshit-guard.conf'),
+    join(homedir(), '.config', 'bullshit-guard', 'bullshit-guard.conf'),
+  ]
+  for (const candidate of candidates) {
+    try {
+      const lines = readFileSync(candidate, 'utf8')
+        .split('\n')
+        .map(l => l.trim().toLowerCase())
+        .filter(l => l && !l.startsWith('#'))
+      if (lines.length > 0) return lines
+    } catch {
+      continue
+    }
+  }
+  return DEFAULT_PHRASES
+}
+
+const PHRASES = loadPhrases()
+
 export function detect(text: string): string | null {
   const lower = text.toLowerCase()
-
-  if (lower.includes('you are right')) return 'you are right'
-
-  for (const phrase of ['great point', 'good point', 'excellent point']) {
-    const i = lower.indexOf(phrase)
-    if (i !== -1 && (lower.charCodeAt(i + phrase.length) || 32) < 97) return phrase
+  for (const phrase of PHRASES) {
+    if (lower.includes(phrase)) return phrase
   }
-
-  return text.match(/^Right[.!,]/im)?.[0] ?? null
+  return null
 }
 
 export function buildBlock(matched: string) {
