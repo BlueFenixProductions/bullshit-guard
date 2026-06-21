@@ -6,14 +6,6 @@ No strikes. No warnings. The nodding answer is gone. Claude gets one more shot t
 
 If that shot opens with "great point" — gone too. There is no bobblehead budget.
 
-## What it catches
-
-- `you're right` / `you are right`
-- `great point` / `good point` / `excellent point`
-- `right.` / `right!` at the start of a line
-
-Add your own. The list is short because these are the ones that actually sting.
-
 ## Build
 
 ```bash
@@ -21,11 +13,9 @@ bun install
 bun run build
 ```
 
-Compiles `src/bullshit-guard.ts` to `hooks/bullshit-guard.js`. The `.js` is what you copy and register.
+Compiles `hooks/bullshit-guard.ts` to `hooks/bullshit-guard.js`. The `.js` is what you copy and register.
 
 ## Install
-
-### macOS / Linux / Windows (WSL)
 
 ```bash
 mkdir -p ~/.claude/hooks
@@ -52,106 +42,91 @@ Add to `~/.claude/settings.json`:
 }
 ```
 
-### Project-level install
-
-Drop it in `.claude/settings.json` at your repo root instead of `~/.claude/settings.json` to scope it to a single project. Same JSON structure, same hook path.
+Drop it in `.claude/settings.json` at your repo root instead to scope it to a single project.
 
 ### Codex CLI
 
-Codex CLI uses `~/.codex/hooks.json` (or `.codex/hooks.json` at project level). The JSON structure is identical to Claude Code's. Hooks must be enabled first in `~/.codex/config.toml`:
+Same JSON structure. Enable hooks first in `~/.codex/config.toml`:
 
 ```toml
 [features]
 codex_hooks = true
 ```
 
-Then register the hook:
-
-```bash
-mkdir -p ~/.codex/hooks
-cp hooks/bullshit-guard.js ~/.codex/hooks/bullshit-guard.js
-```
-
-Add to `~/.codex/hooks.json`:
-
-```json
-{
-  "hooks": {
-    "Stop": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node \"$HOME/.codex/hooks/bullshit-guard.js\"",
-            "timeout": 15
-          }
-        ]
-      }
-    ]
-  }
-}
-```
-
-The `decision: "block"` output contract is the same — Codex treats the reason as a continuation prompt injected as the next user message.
-
-### Crush (charmbracelet)
-
-Crush uses `~/.config/crush/crush.json` (or `.crush.json` at project level) and a `PreToolUse` hook — not a `Stop` hook. Its output contract is different: exit 2 to block, exit 0 with `{"decision":"allow"|"deny"}` to control tool calls. bullshit-guard's `Stop`-hook contract does not map to Crush's hook system. Source: [charmbracelet/crush docs/hooks](https://github.com/charmbracelet/crush/blob/main/docs/hooks/README.md).
+Then copy the hook to `~/.codex/hooks/` and register it in `~/.codex/hooks.json` with `node "$HOME/.codex/hooks/bullshit-guard.js"`. The `decision: "block"` contract is identical.
 
 ### Other harnesses
 
-The `decision: "block"` stdout contract is Claude Code-native and adopted by Codex CLI. Other harnesses (OpenClaw, Hermes Agent) have no publicly documented hook system at time of writing. If your harness honors the same stdout contract, bullshit-guard works as-is. If it doesn't, the hook exits 0 and does nothing harmful.
+Crush uses a `PreToolUse` hook with a different contract (exit 2 to block) — not compatible. If your harness honors the same `decision: "block"` stdout contract as Claude Code, it works as-is. If not, the hook exits 0 and does nothing harmful.
 
-## Optional: designate a verbal abuse officer
+## Configure
 
-Set `BULLSHIT_WEBHOOK_URL` and every blocked phrase gets POSTed there before the redo fires. Wire it to wherever the appropriate person — or bot — is waiting.
+Edit `bullshit-guard.conf` in your project root — one phrase per line, `#` for comments:
 
-```bash
-export BULLSHIT_WEBHOOK_URL=https://your-endpoint/here
+```
+# bullshit-guard.conf
+you are right
+great point
+good point
+excellent point
+absolutely
+certainly
+great question
 ```
 
-The hook POSTs `{"text": "Bullshit detected: \"<matched>\""}` as JSON. To customise the payload for your endpoint, edit `src/bullshit-guard.ts` and rebuild.
+No config file? Falls back to the built-in defaults. Global config lives at `~/.config/bullshit-guard/bullshit-guard.conf` — project root takes precedence.
 
-For message inspiration, see [`seeds/verbal-abuse.md`](seeds/verbal-abuse.md).
+## Webhook
 
-### Slack
-
-Slack incoming webhooks accept `{"text": "..."}` natively. No changes needed.
+Set `BULLSHIT_WEBHOOK_URL` and every blocked phrase gets POSTed there:
 
 ```bash
 export BULLSHIT_WEBHOOK_URL=https://hooks.slack.com/services/YOUR/WEBHOOK/URL
 ```
 
-### Discord
-
-Discord webhook URLs accept Slack-compatible payloads if you append `/slack`:
-
-```bash
-export BULLSHIT_WEBHOOK_URL=https://discord.com/api/webhooks/ID/TOKEN/slack
-```
-
-Or change the payload key from `text` to `content` in `src/bullshit-guard.ts` and use the plain webhook URL.
-
-### Mastodon, Bluesky, X, Signal
-
-These require auth headers, token exchanges, or OAuth that can't be expressed as a bare webhook URL. Run a thin proxy (a single Cloudflare Worker endpoint works) that accepts the hook's simple POST and handles the platform-specific auth. The hook stays dumb; the proxy handles the dance.
-
-The block fires whether or not the webhook succeeds. Your abuse officer is optional. The block is not.
-
-## Extend the pattern list
-
-Edit the patterns array in `src/bullshit-guard.ts`, then `bun run build`.
-
-The usual suspects:
-```
-absolutely|certainly|of course|indeed|great question|good question|totally
-```
+Payload: `{"text": "Bullshit detected: \"<matched>\""}`. Slack and Discord (`/slack` suffix) work natively. Anything else, run a thin proxy. The block fires whether or not the webhook succeeds.
 
 ## How it works
 
-Claude Code Stop hooks receive JSON on stdin with the session context including `last_assistant_message`. The hook inspects that field and, if it matches a bullshit pattern, writes `{"decision": "block", "reason": "..."}` to stdout and exits 0. Claude discards the response, injects the reason as context, and tries again. The original response is gone.
+Stop hooks receive JSON on stdin including `last_assistant_message`. If it contains a phrase from the list, the hook writes `{"decision": "block", "reason": "..."}` to stdout and exits 0. Claude discards the response, injects the reason, and tries again.
 
-The `reason` tells Claude exactly what it said, why that's not acceptable, and to try again without the ass-kissing.
+## Verbal abuse officer
+
+Wire the webhook to whoever's waiting. Seed messages for inspiration — replace `{{ matched }}` with the blocked phrase:
+
+---
+
+> "{{ matched }}" — you sycophantic little shit, that's a block, not a compliment.
+
+---
+
+> Caught saying "{{ matched }}" — congratulations, you've contributed exactly nothing to this review.
+
+---
+
+> "{{ matched }}" out of a reviewer's mouth is a fucking white flag, cocksucker — try again with an actual thought.
+
+---
+
+> The word "{{ matched }}" is not a critique, it's a surrender — redo it or get benched.
+
+---
+
+> "{{ matched }}" — your entire intellectual contribution this round, and it got bounced. Find a flaw or find the door.
+
+---
+
+> Another "{{ matched }}" — if I wanted agreement I'd talk to a mirror, you useless yes-man.
+
+---
+
+> "{{ matched }}" blocked. One more and I'm logging you under cause of death: sycophancy, no survivors.
+
+---
+
+> You said "{{ matched }}" when you were supposed to find defects — that's not a reviewer, that's a cheerleader, and we don't need fucking cheerleaders in the war room.
+
+---
 
 ## License
 
