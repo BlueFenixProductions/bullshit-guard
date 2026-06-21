@@ -21,11 +21,11 @@ bun install
 bun run build
 ```
 
-This compiles `src/bullshit-guard.ts` to `hooks/bullshit-guard.js`. The `.js` is what you copy and register.
+Compiles `src/bullshit-guard.ts` to `hooks/bullshit-guard.js`. The `.js` is what you copy and register.
 
 ## Install
 
-### macOS / Linux
+### macOS / Linux / Windows (WSL)
 
 ```bash
 mkdir -p ~/.claude/hooks
@@ -43,33 +43,6 @@ Add to `~/.claude/settings.json`:
           {
             "type": "command",
             "command": "node \"$HOME/.claude/hooks/bullshit-guard.js\"",
-            "timeout": 15
-          }
-        ]
-      }
-    ]
-  }
-}
-```
-
-### Windows
-
-```powershell
-New-Item -ItemType Directory -Force "$env:USERPROFILE\.claude\hooks"
-Copy-Item hooks\bullshit-guard.ps1 "$env:USERPROFILE\.claude\hooks\bullshit-guard.ps1"
-```
-
-Add to `%USERPROFILE%\.claude\settings.json`:
-
-```json
-{
-  "hooks": {
-    "Stop": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "powershell.exe -NonInteractive -WindowStyle Hidden -File \"%USERPROFILE%\\.claude\\hooks\\bullshit-guard.ps1\"",
             "timeout": 15
           }
         ]
@@ -167,7 +140,7 @@ The block fires whether or not the webhook succeeds. Your abuse officer is optio
 
 ## Extend the pattern list
 
-Edit the patterns array in `src/bullshit-guard.ts`, then `bun run build`. On Windows, edit the regex in `hooks/bullshit-guard.ps1` directly.
+Edit the patterns array in `src/bullshit-guard.ts`, then `bun run build`.
 
 The usual suspects:
 ```
@@ -186,6 +159,6 @@ The `reason` tells Claude exactly what it said, why that's not acceptable, and t
 
 ## Requirements
 
-- macOS/Linux: `node` (18+), `curl` (for webhooks)
-- Windows: PowerShell 5.1+
+- `node` 18+
+- `bun` (build only)
 - No other dependencies
