@@ -2,9 +2,9 @@
 
 ## Your agentic 💩 bullshit detector 🚨
 
-Claude will tell you you're right when you're wrong. It will call your half-baked idea a great point. It will agree with your bad architecture and help you ship it. This is a Claude Code Stop hook that kills that response before it reaches you and makes Claude try again.
+Claude will tell you you're right when you're wrong. It will call your half-baked idea a great point. It will agree with your bad architecture and help you ship it. I got "You're right" replies so often one day I created this Claude Code Stop hook that kills that response, before it reaches you, and calls Claude on its bullshit.
 
-No strikes. No warnings. The nodding answer is gone. Claude gets one more shot to say something useful.
+No strikes. No warnings. No more tokens nodding away. Claude gets one more shot to say something useful. Then Claude can stop that shit.
 
 If that shot opens with "great point" — gone too. There is no bobblehead budget.
 
@@ -46,7 +46,7 @@ Add to `~/.claude/settings.json`:
 
 Drop it in `.claude/settings.json` at your repo root instead to scope it to a single project.
 
-### Codex CLI
+### [Codex CLI](https://openai.com/codex/)
 
 Same JSON structure. Enable hooks first in `~/.codex/config.toml`:
 
@@ -59,7 +59,7 @@ Then copy the hook to `~/.codex/hooks/` and register it in `~/.codex/hooks.json`
 
 ### Other harnesses
 
-Crush uses a `PreToolUse` hook with a different contract (exit 2 to block) — not compatible. If your harness honors the same `decision: "block"` stdout contract as Claude Code, it works as-is. If not, the hook exits 0 and does nothing harmful.
+[Crush](https://github.com/charmbracelet/crush) uses a `PreToolUse` hook with a different contract (exit 2 to block) — not compatible. If your harness honors the same `decision: "block"` stdout contract as Claude Code, it works as-is. If not, the hook exits 0 and does nothing harmful.
 
 ## Configure
 
@@ -130,6 +130,10 @@ Wire the webhook to whoever's waiting. Seed messages for inspiration — replace
 
 ---
 
+> Hey shit for brains! You fucking said "{{ matched }}" AGAIN! What the fuck are you even still doing here? Fuck all the way off!
+
+___
+
 ## License
 
 [WTFPL](LICENSE) — do what the fuck you want to.
@@ -139,3 +143,4 @@ Wire the webhook to whoever's waiting. Seed messages for inspiration — replace
 - `node` 18+
 - `bun` (build only)
 - No other dependencies
+- No bullshit
