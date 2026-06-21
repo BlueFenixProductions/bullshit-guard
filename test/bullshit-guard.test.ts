@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { detect, buildBlock, run } from '../src/bullshit-guard.js'
 
 // --- detect() ---
@@ -128,6 +128,10 @@ describe('run', () => {
       vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true }))
     })
 
+    afterEach(() => {
+      delete process.env.BULLSHIT_WEBHOOK_URL
+    })
+
     it('calls fetch when BULLSHIT_WEBHOOK_URL is set', async () => {
       process.env.BULLSHIT_WEBHOOK_URL = 'https://example.com/webhook'
       const input = JSON.stringify({ last_assistant_message: "great point" })
@@ -136,11 +140,9 @@ describe('run', () => {
         'https://example.com/webhook',
         expect.objectContaining({ method: 'POST' })
       )
-      delete process.env.BULLSHIT_WEBHOOK_URL
     })
 
     it('does not call fetch when BULLSHIT_WEBHOOK_URL is unset', async () => {
-      delete process.env.BULLSHIT_WEBHOOK_URL
       const input = JSON.stringify({ last_assistant_message: "great point" })
       await run(input)
       expect(fetch).not.toHaveBeenCalled()
@@ -152,7 +154,6 @@ describe('run', () => {
       const input = JSON.stringify({ last_assistant_message: "great point" })
       const out = await run(input)
       expect(JSON.parse(out!).decision).toBe('block')
-      delete process.env.BULLSHIT_WEBHOOK_URL
     })
   })
 })

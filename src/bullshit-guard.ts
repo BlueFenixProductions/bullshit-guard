@@ -1,26 +1,11 @@
 // Patterns that indicate sycophantic affirmation
-const PATTERNS: RegExp[] = [
-  /you're right/i,
-  /you are right/i,
-  /great point/i,
-  /good point/i,
-  /excellent point/i,
-  /^Right[.!,]/im,
-]
+const PATTERN = /you're right|you are right|great point|good point|excellent point|^Right[.!,]/im
 
 export function detect(text: string): string | null {
-  for (const pattern of PATTERNS) {
-    const match = text.match(pattern)
-    if (match) return match[0]
-  }
-  return null
+  return text.match(PATTERN)?.[0] ?? null
 }
 
-export function buildBlock(matched: string): {
-  decision: 'block'
-  reason: string
-  systemMessage: string
-} {
+export function buildBlock(matched: string) {
   return {
     decision: 'block',
     reason: `Do not affirm with "${matched}". Restate your analysis directly without validating the human's framing.`,
