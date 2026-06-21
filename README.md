@@ -75,6 +75,10 @@ Add to `%USERPROFILE%\.claude\settings.json`:
 
 Drop it in `.claude/settings.json` at your repo root instead of `~/.claude/settings.json` to scope it to a single project. Same JSON structure, same hook path.
 
+### Other harnesses (Codex, OpenCode, OpenClaw, etc.)
+
+Harnesses that use `.agents/` instead of `.claude/` follow the same pattern — copy the hook, register it in `.agents/settings.json` with the same JSON structure. Replace `~/.claude/hooks/` with `~/.agents/hooks/` (or the equivalent your harness expects) throughout.
+
 ## Optional: designate a verbal abuse officer
 
 Set `BULLSHIT_WEBHOOK_URL` and every blocked phrase gets POSTed there before the redo fires. Wire it to wherever the appropriate person — or bot — is waiting.
