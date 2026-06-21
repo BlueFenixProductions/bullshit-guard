@@ -71,20 +71,68 @@ Add to `%USERPROFILE%\.claude\settings.json`:
 }
 ```
 
+### Project-level install
+
+Drop it in `.claude/settings.json` at your repo root instead of `~/.claude/settings.json` to scope it to a single project. Same JSON structure, same hook path.
+
 ## Optional: designate a verbal abuse officer
 
-Set `BULLSHIT_WEBHOOK_URL` and every blocked phrase gets POSTed there before the redo fires. Wire it to Slack, Discord, or whatever poor bastard you've assigned to handle conduct violations.
+Set `BULLSHIT_WEBHOOK_URL` and every blocked phrase gets POSTed there before the redo fires. Wire it to wherever the appropriate person — or bot — is waiting.
+
+```bash
+export BULLSHIT_WEBHOOK_URL=https://your-endpoint/here
+```
+
+### Slack
 
 ```bash
 export BULLSHIT_WEBHOOK_URL=https://hooks.slack.com/services/YOUR/WEBHOOK/URL
 ```
 
-Payload:
-```json
-{ "text": "Bullshit detected: agent said \"great point\" — response blocked and retried." }
+Payload (`{"text": "..."}`) works natively with Slack incoming webhooks. No extra config.
+
+### Discord
+
+```bash
+export BULLSHIT_WEBHOOK_URL=https://discord.com/api/webhooks/ID/TOKEN
 ```
 
-Slack accepts this directly. Discord: append `/slack` to your webhook URL or swap `text` for `content`.
+Discord expects `content` not `text`. Edit the hook script and swap:
+```bash
+BODY="{\"content\": \"Bullshit detected: agent said \\\"${MATCHED}\\\" — response blocked and retried.\"}"
+```
+
+Or append `/slack` to your Discord webhook URL and leave the script as-is.
+
+### Mastodon
+
+```bash
+export BULLSHIT_WEBHOOK_URL=https://your.instance/api/v1/statuses
+```
+
+Mastodon needs a Bearer token. Edit the curl call in the hook to add the header:
+```bash
+curl -sf -X POST \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
+  -d "{\"status\": \"Bullshit detected: agent said \\\"${MATCHED}\\\" — response blocked.\"}" \
+  "$BULLSHIT_WEBHOOK_URL" 2>/dev/null || true
+```
+
+### Bluesky
+
+Bluesky requires an app password and a session token exchange before posting. Wire up a small proxy (a single-endpoint Cloudflare Worker or similar) that holds your credentials and accepts the same simple POST the hook fires. The hook stays dumb; the proxy handles the AT Protocol dance.
+
+### X (Twitter)
+
+X's API requires OAuth 2.0 and a paid developer account. Same proxy approach as Bluesky — keep the hook simple, put the auth complexity in a thin intermediary.
+
+### Signal
+
+Requires [`signal-cli`](https://github.com/AsamK/signal-cli) running locally. Replace the curl call with:
+```bash
+signal-cli -u +15551234567 send -m "Bullshit detected: \"${MATCHED}\" — response blocked." +15559876543
+```
 
 The block fires whether or not the webhook succeeds. Your abuse officer is optional. The block is not.
 
