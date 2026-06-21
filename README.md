@@ -1,5 +1,7 @@
 # bullshit-guard
 
+## Your agentic bullshit detector 🚨
+
 Claude will tell you you're right when you're wrong. It will call your half-baked idea a great point. It will agree with your bad architecture and help you ship it. This is a Claude Code Stop hook that kills that response before it reaches you and makes Claude try again.
 
 No strikes. No warnings. The nodding answer is gone. Claude gets one more shot to say something useful.
