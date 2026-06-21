@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-# sycophancy-guard.sh — Claude Code Stop hook
-# Blocks sycophantic responses and forces an immediate redo.
+# bullshit-guard.sh — Claude Code Stop hook
+# Blocks bullshit responses and forces an immediate redo.
 # Optionally fires a webhook so a human (or a very angry bot) can be notified.
 #
 # Install: see README.md
-# Config:  SYCOPHANCY_WEBHOOK_URL — if set, POST offense to this URL (optional)
+# Config:  BULLSHIT_WEBHOOK_URL — if set, POST offense to this URL (optional)
 
 NODE="${NODE:-$(command -v node 2>/dev/null || echo /opt/homebrew/bin/node)}"
 
@@ -36,12 +36,12 @@ if m:
 [ -z "$MATCHED" ] && exit 0
 
 # Optional webhook notification
-if [ -n "${SYCOPHANCY_WEBHOOK_URL:-}" ]; then
-    BODY="{\"text\": \"Sycophancy detected: agent said \\\"${MATCHED}\\\" — response blocked and retried.\"}"
+if [ -n "${BULLSHIT_WEBHOOK_URL:-}" ]; then
+    BODY="{\"text\": \"Bullshit detected: agent said \\\"${MATCHED}\\\" — response blocked and retried.\"}"
     curl -sf -X POST \
         -H "Content-Type: application/json" \
         -d "$BODY" \
-        "$SYCOPHANCY_WEBHOOK_URL" \
+        "$BULLSHIT_WEBHOOK_URL" \
         2>/dev/null || true
     sleep 1
 fi
@@ -53,13 +53,13 @@ matched = sys.argv[1]
 print(json.dumps({
     'decision': 'block',
     'reason': (
-        'Your response contained the sycophantic phrase \"' + matched + '\". '
+        'Your response contained the bullshit phrase \"' + matched + '\". '
         'That response has been blocked. '
         'Do not validate, affirm, or agree with the user. '
         'Restate your finding directly. '
         'If you found no issues, say so in one sentence without affirmation.'
     ),
-    'systemMessage': 'Sycophancy detected: \"' + matched + '\" — response blocked, retry required.'
+    'systemMessage': 'Bullshit detected: \"' + matched + '\" — response blocked, retry required.'
 }))
 " "$MATCHED" 2>/dev/null || true
 

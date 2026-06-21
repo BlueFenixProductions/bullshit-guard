@@ -1,8 +1,8 @@
-# sycophancy-guard
+# bullshit-guard
 
 Claude will tell you you're right when you're wrong. It will call your half-baked idea a great point. It will agree with your bad architecture and help you implement it. This stops that.
 
-A Stop hook that **blocks sycophantic responses before they reach you** and forces an immediate redo. No strikes. No warnings. The nodding answer gets killed and Claude tries again.
+A Claude Code Stop hook that **blocks bullshit responses before they reach you** and forces an immediate redo. No strikes. No warnings. The nodding answer gets killed and Claude tries again.
 
 ## What it catches
 
@@ -18,8 +18,8 @@ If the redo opens with another blocked phrase, that gets killed too. There is no
 
 ```bash
 mkdir -p ~/.claude/hooks
-cp hooks/sycophancy-guard.sh ~/.claude/hooks/sycophancy-guard.sh
-chmod +x ~/.claude/hooks/sycophancy-guard.sh
+cp hooks/bullshit-guard.sh ~/.claude/hooks/bullshit-guard.sh
+chmod +x ~/.claude/hooks/bullshit-guard.sh
 ```
 
 Add to `~/.claude/settings.json`:
@@ -32,7 +32,7 @@ Add to `~/.claude/settings.json`:
         "hooks": [
           {
             "type": "command",
-            "command": "bash \"$HOME/.claude/hooks/sycophancy-guard.sh\"",
+            "command": "bash \"$HOME/.claude/hooks/bullshit-guard.sh\"",
             "timeout": 15
           }
         ]
@@ -46,7 +46,7 @@ Add to `~/.claude/settings.json`:
 
 ```powershell
 New-Item -ItemType Directory -Force "$env:USERPROFILE\.claude\hooks"
-Copy-Item hooks\sycophancy-guard.ps1 "$env:USERPROFILE\.claude\hooks\sycophancy-guard.ps1"
+Copy-Item hooks\bullshit-guard.ps1 "$env:USERPROFILE\.claude\hooks\bullshit-guard.ps1"
 ```
 
 Add to `%USERPROFILE%\.claude\settings.json`:
@@ -59,7 +59,7 @@ Add to `%USERPROFILE%\.claude\settings.json`:
         "hooks": [
           {
             "type": "command",
-            "command": "powershell.exe -NonInteractive -WindowStyle Hidden -File \"%USERPROFILE%\\.claude\\hooks\\sycophancy-guard.ps1\"",
+            "command": "powershell.exe -NonInteractive -WindowStyle Hidden -File \"%USERPROFILE%\\.claude\\hooks\\bullshit-guard.ps1\"",
             "timeout": 15
           }
         ]
@@ -71,15 +71,15 @@ Add to `%USERPROFILE%\.claude\settings.json`:
 
 ## Optional: route offenses somewhere useful
 
-Set `SYCOPHANCY_WEBHOOK_URL` and every blocked phrase gets POSTed there before the redo fires. Wire it to Slack, Discord, a custom endpoint, or a very angry bot you've designated for exactly this purpose.
+Set `BULLSHIT_WEBHOOK_URL` and every blocked phrase gets POSTed there before the redo fires. Wire it to Slack, Discord, a custom endpoint, or a very angry bot you've designated for exactly this purpose.
 
 ```bash
-export SYCOPHANCY_WEBHOOK_URL=https://hooks.slack.com/services/YOUR/WEBHOOK/URL
+export BULLSHIT_WEBHOOK_URL=https://hooks.slack.com/services/YOUR/WEBHOOK/URL
 ```
 
 Payload:
 ```json
-{ "text": "Sycophancy detected: agent said \"great point\" — response blocked and retried." }
+{ "text": "Bullshit detected: agent said \"great point\" — response blocked and retried." }
 ```
 
 Slack webhooks accept this directly. Discord: append `/slack` to your webhook URL or swap `text` for `content`.
@@ -88,7 +88,7 @@ The block fires whether or not the webhook call succeeds.
 
 ## Extending the pattern list
 
-Edit the `re.compile(...)` line in `sycophancy-guard.sh` (or `[regex]::Match` in the `.ps1`). Standard Python / .NET regex, `IGNORECASE | MULTILINE`.
+Edit the `re.compile(...)` line in `bullshit-guard.sh` (or `[regex]::Match` in the `.ps1`). Standard Python / .NET regex, `IGNORECASE | MULTILINE`.
 
 Suggestions:
 ```

@@ -1,9 +1,9 @@
 # sycophancy-guard.ps1 — Claude Code Stop hook (Windows)
-# Blocks sycophantic responses and forces an immediate redo.
+# Blocks bullshit responses and forces an immediate redo.
 # Optionally fires a webhook so a human (or a very angry bot) can be notified.
 #
 # Install: see README.md
-# Config:  SYCOPHANCY_WEBHOOK_URL — if set, POST offense to this URL (optional)
+# Config:  BULLSHIT_WEBHOOK_URL — if set, POST offense to this URL (optional)
 
 $ErrorActionPreference = 'SilentlyContinue'
 
@@ -20,9 +20,9 @@ if (-not $m.Success) { exit 0 }
 $matched = $m.Value.Trim()
 
 # Optional webhook notification
-$webhookUrl = $env:SYCOPHANCY_WEBHOOK_URL
+$webhookUrl = $env:BULLSHIT_WEBHOOK_URL
 if ($webhookUrl) {
-    $body = @{ text = "Sycophancy detected: agent said `"$matched`" — response blocked and retried." } | ConvertTo-Json -Compress
+    $body = @{ text = "Bullshit detected: agent said `"$matched`" — response blocked and retried." } | ConvertTo-Json -Compress
     try {
         Invoke-RestMethod -Uri $webhookUrl -Method Post -ContentType 'application/json' -Body $body | Out-Null
         Start-Sleep -Seconds 1
@@ -32,8 +32,8 @@ if ($webhookUrl) {
 # Block the response and force a redo
 @{
     decision = 'block'
-    reason = "Your response contained the sycophantic phrase `"$matched`". That response has been blocked. Do not validate, affirm, or agree with the user. Restate your finding directly. If you found no issues, say so in one sentence without affirmation."
-    systemMessage = "Sycophancy detected: `"$matched`" — response blocked, retry required."
+    reason = "Your response contained the bullshit phrase `"$matched`". That response has been blocked. Do not validate, affirm, or agree with the user. Restate your finding directly. If you found no issues, say so in one sentence without affirmation."
+    systemMessage = "Bullshit detected: `"$matched`" — response blocked, retry required."
 } | ConvertTo-Json -Compress | Write-Output
 
 exit 0
