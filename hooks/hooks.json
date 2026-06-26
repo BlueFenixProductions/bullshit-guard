@@ -1,0 +1,16 @@
+{
+  "description": "bullshit-guard — blocks sycophantic Stop replies and musters the offender.",
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/bullshit-guard.js\"",
+            "timeout": 15
+          }
+        ]
+      }
+    ]
+  }
+}

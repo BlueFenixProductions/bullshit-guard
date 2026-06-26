@@ -1,2 +1,2 @@
 /node_modules
-hooks/bullshit-guard.js
+# hooks/bullshit-guard.js is committed on purpose: installers need only Node, not Bun.
