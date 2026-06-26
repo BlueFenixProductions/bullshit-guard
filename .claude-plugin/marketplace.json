@@ -1,0 +1,16 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "bullshit-guard",
+  "description": "The Yarmouth's bullshit-guard — anti-sycophancy Stop hook with a Campfire muster.",
+  "owner": {
+    "name": "BlueFenixProductions"
+  },
+  "plugins": [
+    {
+      "name": "bullshit-guard",
+      "source": "./",
+      "description": "Kills sycophantic replies before they reach you and musters the offender to Campfire for @ironquill's rebuke.",
+      "category": "guardrails"
+    }
+  ]
+}

@@ -78,19 +78,33 @@ great question
 
 No config file? Falls back to the built-in defaults. Global config lives at `~/.config/bullshit-guard/bullshit-guard.conf` — project root takes precedence.
 
-## Webhook
+## Install as a plugin
 
-Set `BULLSHIT_WEBHOOK_URL` and every blocked phrase gets POSTed there:
+```
+/plugin marketplace add BlueFenixProductions/bullshit-guard
+/plugin install bullshit-guard
+```
+
+Restart Claude Code after install — hooks load at startup. The committed `hooks/bullshit-guard.js` runs on plain Node; Bun is build-only. For the crew's per-machine setup (Windows/macOS/Debian + Campfire bot mapping), see [`RUNBOOK.md`](RUNBOOK.md).
+
+## Webhook / the muster
+
+Set `BULLSHIT_WEBHOOK_URL` and every blocked phrase gets POSTed there. The transport is chosen by URL shape:
+
+- **Campfire** — a bot URL like `https://campfire.bluefenix.net/rooms/3/bot/<key>/messages` gets the muster: the rebuke is posted as the **raw HTML body** with an `@ironquill` mention, which fires Ironquill's responder so Claude-Ironquill piles on. The poster identity is whichever crew-bot key is in the URL.
+- **Slack/Discord** — any other URL gets `{"text": "[<offender>] Bullshit detected: \"<matched>\""}` as JSON (Discord: `/slack` suffix). `<offender>` is `BULLSHIT_OFFENDER` or this machine's hostname.
 
 ```bash
 export BULLSHIT_WEBHOOK_URL=https://hooks.slack.com/services/YOUR/WEBHOOK/URL
 ```
 
-Payload: `{"text": "Bullshit detected: \"<matched>\""}`. Slack and Discord (`/slack` suffix) work natively. Anything else, run a thin proxy. The block fires whether or not the webhook succeeds.
+The block fires whether or not the webhook succeeds.
 
 ## How it works
 
-Stop hooks receive JSON on stdin including `last_assistant_message`. If it contains a phrase from the list, the hook writes `{"decision": "block", "reason": "..."}` to stdout and exits 0. Claude discards the response, injects the reason, and tries again.
+Stop hooks receive JSON on stdin including `transcript_path`. The hook reads the last assistant message out of that transcript; if it contains a phrase from the list, the hook writes `{"decision": "block", "reason": "..."}` to stdout and exits 0. Claude discards the response, injects the reason, and tries again. The retry arrives with `stop_hook_active: true`, so the hook stands down after that — one more shot, then Claude can stop. No strikes, no loops.
+
+Curly apostrophes are folded to straight before matching, so `you’re right` can't sneak past a `you're right` rule.
 
 ## Verbal abuse officer
 

@@ -1,0 +1,12 @@
+{
+  "name": "bullshit-guard",
+  "version": "0.2.0",
+  "description": "Claude Code Stop hook that kills sycophantic replies (\"you're absolutely right\", \"great point\", \"fair hit\"...) before they reach you, and musters the offender to Campfire for a rebuke from @ironquill.",
+  "author": {
+    "name": "Chris Pelatari"
+  },
+  "homepage": "https://github.com/BlueFenixProductions/bullshit-guard",
+  "repository": "https://github.com/BlueFenixProductions/bullshit-guard",
+  "license": "WTFPL",
+  "keywords": ["anti-sycophancy", "stop-hook", "code-review", "campfire", "ironquill"]
+}
