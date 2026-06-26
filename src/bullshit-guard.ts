@@ -81,13 +81,15 @@ function pickSeed(matched: string): string {
   return seed.replace(/\{\{\s*matched\s*\}\}/g, matched)
 }
 
-// Ironquill is Campfire user id 2. Posting this anchor markup creates a mention
-// record, which fires Ironquill's responder webhook so Claude-Ironquill piles on.
-// NOTE: the exact markup Campfire treats as a mention-trigger is confirmed by the
-// live verification step — it is intentionally isolated to this one function.
-const IRONQUILL_USER_ID = 2
+// Verified against the live once-campfire instance: this Campfire wakes a bot when
+// a message's PLAIN TEXT contains "@<botname>" (a local patch — bots_eligible_for_webhook
+// scans plain_text_body for @handles, no sgid/ActionText attachment required). So the
+// mention is just the literal handle. Centralized here per spec for a one-line change.
+// Caveat: a message never fires its OWN creator's webhook, so the posting bot must be
+// a *different* bot than ironquill (use a crew bot key, never ironquill's).
+const IRONQUILL_HANDLE = '@ironquill'
 function renderIronquillMention(): string {
-  return `<a href="/users/${IRONQUILL_USER_ID}" class="mention">@ironquill</a>`
+  return IRONQUILL_HANDLE
 }
 
 // A once-campfire bot endpoint looks like /rooms/<room_id>/<bot_key>/messages
@@ -104,11 +106,11 @@ function dispatchMuster(matched: string): void {
   if (!url) return
 
   if (isCampfireUrl(url)) {
-    // Campfire renders HTML and parses mentions from anchor markup; the message
-    // is the raw request body, not a JSON wrapper.
+    // The bot endpoint reads the raw request body as the message text (no JSON
+    // wrapper); a plain-text @ironquill handle in it wakes the responder.
     fetch(url, {
       method: 'POST',
-      headers: { 'Content-Type': 'text/html' },
+      headers: { 'Content-Type': 'text/plain' },
       body: `${pickSeed(matched)} ${renderIronquillMention()}`,
     }).catch(() => undefined)
     return

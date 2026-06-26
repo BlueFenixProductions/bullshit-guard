@@ -109,10 +109,10 @@ describe('run', () => {
         await run(payload('fair hit'))
         const [url, init] = lastCall() as [string, RequestInit]
         expect(url).toBe(CAMPFIRE)
-        expect((init.headers as Record<string, string>)['Content-Type']).toBe('text/html')
+        expect((init.headers as Record<string, string>)['Content-Type']).toBe('text/plain')
         const body = init.body as string
         expect(body).toContain('fair hit')          // the blocked phrase, interpolated
-        expect(body).toContain('@ironquill')         // the mention that fires the responder
+        expect(body).toContain('@ironquill')         // plain-text handle that wakes the responder
         expect(body).not.toContain('"text"')         // NOT the Slack JSON shape
       })
     })

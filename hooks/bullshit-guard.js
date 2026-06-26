@@ -65,9 +65,9 @@ function pickSeed(matched) {
   const seed = IRONQUILL_SEEDS[Math.floor(Math.random() * IRONQUILL_SEEDS.length)];
   return seed.replace(/\{\{\s*matched\s*\}\}/g, matched);
 }
-var IRONQUILL_USER_ID = 2;
+var IRONQUILL_HANDLE = "@ironquill";
 function renderIronquillMention() {
-  return `<a href="/users/${IRONQUILL_USER_ID}" class="mention">@ironquill</a>`;
+  return IRONQUILL_HANDLE;
 }
 function isCampfireUrl(url) {
   return /\/rooms\/\d+\/[^/]+\/messages\/?$/.test(url);
@@ -79,7 +79,7 @@ function dispatchMuster(matched) {
   if (isCampfireUrl(url)) {
     fetch(url, {
       method: "POST",
-      headers: { "Content-Type": "text/html" },
+      headers: { "Content-Type": "text/plain" },
       body: `${pickSeed(matched)} ${renderIronquillMention()}`
     }).catch(() => {
       return;
