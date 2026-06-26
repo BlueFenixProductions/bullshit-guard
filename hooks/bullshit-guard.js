@@ -70,7 +70,7 @@ function renderIronquillMention() {
   return `<a href="/users/${IRONQUILL_USER_ID}" class="mention">@ironquill</a>`;
 }
 function isCampfireUrl(url) {
-  return /\/rooms\/\d+\/bot\/[^/]+\/messages\/?$/.test(url);
+  return /\/rooms\/\d+\/[^/]+\/messages\/?$/.test(url);
 }
 function dispatchMuster(matched) {
   const url = process.env.BULLSHIT_WEBHOOK_URL;

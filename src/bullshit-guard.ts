@@ -90,9 +90,10 @@ function renderIronquillMention(): string {
   return `<a href="/users/${IRONQUILL_USER_ID}" class="mention">@ironquill</a>`
 }
 
-// A Campfire bot endpoint looks like /rooms/<id>/bot/<key>/messages.
+// A once-campfire bot endpoint looks like /rooms/<room_id>/<bot_key>/messages
+// (the key is "<bot_user_id>-<token>", e.g. /rooms/3/7-xxxxxxxxxxxx/messages).
 function isCampfireUrl(url: string): boolean {
-  return /\/rooms\/\d+\/bot\/[^/]+\/messages\/?$/.test(url)
+  return /\/rooms\/\d+\/[^/]+\/messages\/?$/.test(url)
 }
 
 // Fire-and-forget summons. Transport is chosen by URL shape so no new required

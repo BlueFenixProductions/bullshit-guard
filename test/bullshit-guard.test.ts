@@ -101,7 +101,8 @@ describe('run', () => {
     })
 
     describe('Campfire transport', () => {
-      const CAMPFIRE = 'https://campfire.bluefenix.net/rooms/3/bot/SECRETKEY/messages'
+      // Real once-campfire bot endpoint shape: /rooms/<id>/<bot_key>/messages (no /bot/ segment)
+      const CAMPFIRE = 'https://campfire.bluefenix.net/rooms/3/2-SECRETKEY/messages'
 
       it('posts the rebuke as a raw HTML body (no JSON wrapper)', async () => {
         process.env.BULLSHIT_WEBHOOK_URL = CAMPFIRE
