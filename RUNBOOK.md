@@ -18,16 +18,29 @@ bot, mentioning **@ironquill**, whose responder then piles on with fresh ire.
 
 ### Per-crewman crew-bot mapping
 
-| Machine | OS | Posts to #muster as | Env to set (`BULLSHIT_WEBHOOK_URL`) |
-|---------|----|--------------------|--------------------------------------|
-| europa  | Windows 11 | `europa` bot | `https://campfire.bluefenix.net/rooms/3/bot/<EUROPA_KEY>/messages` |
-| itachi  | macOS | `itachi` bot | `…/rooms/3/bot/<ITACHI_KEY>/messages` |
-| hinata  | macOS | `hinata` bot | `…/rooms/3/bot/<HINATA_KEY>/messages` |
-| rikudo  | Debian 13 (Trixie) | `rikudo` bot | `…/rooms/3/bot/<RIKUDO_KEY>/messages` |
-| madara  | Debian 12 | `muster-console` | `…/rooms/3/bot/<MADARA_KEY>/messages` |
+The bot endpoint URL is `https://campfire.bluefenix.net/rooms/3/<BOT_KEY>/messages`
+— the key is `<bot_user_id>-<token>` (e.g. `4-xxxx…`). **There is no `/bot/` path
+segment.** Pull your key from Bitwarden.
 
-> The poster identity is decided entirely by **which** bot key is in the URL — no
-> separate "offender" variable is needed for Campfire. Pull your key from Bitwarden.
+| Machine | OS | Posts to #muster as | In #muster today? |
+|---------|----|--------------------|-------------------|
+| madara  | Debian 12 | `muster-console` (id 4) | ✅ yes |
+| rikudo  | Debian 13 (Trixie) | `rikudo` (id 5) | ✅ yes |
+| hinata  | macOS | `hinata` (id 6) | ✅ yes |
+| europa  | Windows 11 | `muster-console`, **or** add a `europa` bot to #muster first | ⚠️ no `europa` bot in room 3 yet |
+| itachi  | macOS | `muster-console`, **or** add an `itachi` bot to #muster first | ⚠️ no `itachi` bot in room 3 yet |
+
+> **Two hard rules (verified against the live Campfire):**
+> 1. **Never use ironquill's key.** A message never fires its *own* creator's
+>    webhook, so posting as ironquill would never wake the responder.
+> 2. **The poster bot must be a member of #muster.** Only members can post there,
+>    and ironquill is only woken by `@`-handles from room members. Confirmed room-3
+>    bots: `muster-console`, `rikudo`, `hinata`. To give europa/itachi their own
+>    identity, add those bots to #muster; until then, point them at `muster-console`.
+>
+> The hook posts `<ironquill taunt> @ironquill` as your crew bot; the plain-text
+> `@ironquill` wakes Ironquill's responder, which replies with fresh ire. The
+> offender is identified by **which** bot posted (the webhook payload carries it).
 
 ---
 
