@@ -63,7 +63,7 @@ Claude Code** — hooks load at startup.
 ```powershell
 winget install OpenJS.NodeJS.LTS         # if Node missing; reopen PowerShell after
 node --version                            # confirm 18+
-setx BULLSHIT_WEBHOOK_URL "https://campfire.bluefenix.net/rooms/3/bot/<EUROPA_KEY>/messages"
+setx BULLSHIT_WEBHOOK_URL "https://campfire.bluefenix.net/rooms/3/<EUROPA_KEY>/messages"
 ```
 
 `setx` persists the variable for **new** terminals — close and reopen, then start
@@ -74,7 +74,7 @@ Claude Code and install the plugin as above.
 ```bash
 brew install node            # or: nvm install --lts
 node --version
-echo 'export BULLSHIT_WEBHOOK_URL="https://campfire.bluefenix.net/rooms/3/bot/<YOUR_KEY>/messages"' >> ~/.zshrc
+echo 'export BULLSHIT_WEBHOOK_URL="https://campfire.bluefenix.net/rooms/3/<YOUR_KEY>/messages"' >> ~/.zshrc
 source ~/.zshrc
 ```
 
@@ -88,7 +88,7 @@ source ~/.zshrc
 # Debian 13 (Trixie) ships a current Node; `apt install nodejs npm` is fine.
 sudo apt update && sudo apt install -y nodejs npm   # Trixie
 node --version                                       # confirm 18+
-echo 'export BULLSHIT_WEBHOOK_URL="https://campfire.bluefenix.net/rooms/3/bot/<YOUR_KEY>/messages"' >> ~/.bashrc
+echo 'export BULLSHIT_WEBHOOK_URL="https://campfire.bluefenix.net/rooms/3/<YOUR_KEY>/messages"' >> ~/.bashrc
 source ~/.bashrc
 ```
 

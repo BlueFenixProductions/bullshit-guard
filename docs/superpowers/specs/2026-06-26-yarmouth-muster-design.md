@@ -41,7 +41,7 @@ the Captain's secrets. They live in env vars / Bitwarden. **Never commit them to
  Dev machine (e.g. Europa)                  Campfire (Madara) room #3 "muster"
  ┌─────────────────────────┐  POST raw text  ┌──────────────────────────────────────┐
  │ bullshit-guard Stop hook │ ──────────────► │ posts AS that crew bot:              │
- │ blocks "fair hit" etc.   │ /rooms/3/bot/   │  "<rebuke>"  + @ironquill mention    │
+ │ blocks "fair hit" etc.   │ /rooms/3/<key>/ │  "<rebuke>"  + @ironquill mention    │
  └─────────────────────────┘ <crewKey>/      │            │ mention fires webhook    │
                               messages        └────────────┼─────────────────────────┘
                                                            ▼  http://itachi:8788/campfire/ironquill
@@ -70,9 +70,10 @@ Replace the single Slack-shaped POST with a small dispatch that picks transport 
 
 - **Transport selection (no new required config):**
   - If `BULLSHIT_WEBHOOK_URL` matches the Campfire bot pattern
-    (`/rooms/<id>/bot/<key>/messages`), use **Campfire transport**: `POST` with the
-    message as the **raw request body**, `Content-Type: text/html` (Campfire renders
-    HTML and parses mentions from anchor markup).
+    (`/rooms/<id>/<key>/messages` — no `/bot/` segment), use **Campfire transport**:
+    `POST` with the message as the **raw request body**, `Content-Type: text/plain`
+    (this once-campfire instance parses a plain-text `@ironquill` handle to wake the
+    responder — verified live; no ActionText/anchor markup required).
   - Otherwise, use the existing **Slack/Discord transport**: `POST {"text": …}` JSON.
     Preserves the README's existing promise.
 - **Message content (hybrid):** the posted body =
@@ -135,7 +136,7 @@ Conducted; all forks resolved and recorded above. No open questions remain.
 - New phrases block: `you're right`, `you're absolutely right`, `fair hit` (+ within sentences).
 - Curly apostrophe blocks: `you’re right`, `you’re absolutely right`.
 - Union: a conf with only custom phrases still blocks the built-in defaults.
-- Campfire transport: URL matching `/rooms/3/bot/KEY/messages` → POST with raw body
+- Campfire transport: URL matching `/rooms/3/KEY/messages` → POST with raw body
   (not JSON), body contains the rebuke text and the `@ironquill` mention; assert no
   `{"text":…}` wrapper.
 - Slack transport: non-Campfire URL → POST `{"text":…}` JSON (existing behavior intact).
