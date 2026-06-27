@@ -91,7 +91,7 @@ Restart Claude Code after install — hooks load at startup. The committed `hook
 
 Set `BULLSHIT_WEBHOOK_URL` and every blocked phrase gets POSTed there. The transport is chosen by URL shape:
 
-- **Campfire** — a bot URL like `https://campfire.bluefenix.net/rooms/3/bot/<key>/messages` gets the muster: the rebuke is posted as the **raw HTML body** with an `@ironquill` mention, which fires Ironquill's responder so Claude-Ironquill piles on. The poster identity is whichever crew-bot key is in the URL.
+- **Campfire** — a bot URL like `https://campfire.bluefenix.net/rooms/3/<key>/messages` gets the muster: the rebuke is posted as the **raw HTML body** with an `@ironquill` mention, which fires Ironquill's responder so Claude-Ironquill piles on. The poster identity is whichever crew-bot key is in the URL.
 - **Slack/Discord** — any other URL gets `{"text": "[<offender>] Bullshit detected: \"<matched>\""}` as JSON (Discord: `/slack` suffix). `<offender>` is `BULLSHIT_OFFENDER` or this machine's hostname.
 
 ```bash
